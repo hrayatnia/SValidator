@@ -4,7 +4,7 @@
 To use SValidator in your project, add the following dependency to your `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/yourrepo/SValidator.git", from: "1.0.0")
+.package(url: "https://github.com/hrayatnia/SValidator.git", from: "1.0.0")
 ```
 
 ## Usage
