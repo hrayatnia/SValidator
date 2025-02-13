@@ -1,0 +1,138 @@
+name: Test Runner
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+
+env:
+  PACKAGE_NAME: "SValidator"
+  TEST_POSTFIX: "PackageTests"
+  PROFDATA_FILE: ".build/debug/codecov/default.profdata"
+  LCOV_OUTPUT: "cov/info.lcov"
+  CODECOV_TOKEN: ${{ secrets.CODE_COV_TOKEN }}
+
+
+jobs:
+  check-tools:
+    name: Check Tools
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run tool check
+        run: ./scripts/check_tools.sh
+
+  build:
+    name: Build
+    runs-on: macos-15
+    needs: check-tools
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache build outputs
+        uses: actions/cache@v4
+        with:
+          path: .build
+          key: build-${{ runner.os }}-${{ hashFiles('**/*') }}
+          restore-keys: |
+            build-${{ runner.os }}-
+      - name: Build
+        run: ./scripts/build.sh
+
+  test:
+    name: Test
+    runs-on: macos-15
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache build outputs
+        uses: actions/cache@v4
+        with:
+          path: .build
+          key: build-${{ runner.os }}-${{ hashFiles('**/*') }}
+          restore-keys: |
+            build-${{ runner.os }}-
+      - name: Run tests
+        run: ./scripts/test.sh
+
+  coverage:
+    name: Coverage
+    runs-on: macos-15
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache build outputs
+        uses: actions/cache@v4
+        with:
+          path: .build
+          key: build-${{ runner.os }}-${{ hashFiles('**/*') }}
+          restore-keys: |
+            build-${{ runner.os }}-
+      - name: Set test executable path
+        run: echo "TEST_EXECUTABLE=.build/debug/${{ env.PACKAGE_NAME }}${{ env.TEST_POSTFIX }}.xctest/Contents/MacOS/${{ env.PACKAGE_NAME }}${{ env.TEST_POSTFIX }}" >> $GITHUB_ENV
+      - name: Run coverage
+        run: ./scripts/codecov.sh
+
+  documentation:
+    name: Documentation
+    runs-on: macos-15
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ensure docs directory exists
+        run: mkdir -p ./docs
+
+      - name: Cache build outputs
+        uses: actions/cache@v4
+        with:
+          path: .build
+          key: build-${{ runner.os }}-${{ hashFiles('**/*') }}
+          restore-keys: |
+            build-${{ runner.os }}-
+
+      - name: Generate documentation
+        run: ./scripts/doc.sh
+      - name: Upload Documentation Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation
+          path: ./docs
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          branch: gh-pages
+
+      - name: Archive Documentation
+        run: tar -czf docs.tar.gz -C docs .
+
+      - name: Upload Documentation Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation
+          path: docs.tar.gz
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: docs
+          clean: true  # Removes old files but keeps new ones
+
+  release:
+    name: Version & Release
+    runs-on: macos-15
+    needs: [documentation, coverage]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Versioning Script
+        run: ./scripts/version.sh
+      - name: Commit Version Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Release ${{ env.NEW_VERSION }}"
+          tagging_message: "${{ env.NEW_VERSION }}"
