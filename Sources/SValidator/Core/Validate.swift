@@ -124,6 +124,10 @@ public struct Validate<Input: Sendable> {
     ///
     /// - Parameter newValue: The new value to validate.
     /// - Throws: A validation error if the value does not meet the criteria.
+    ///
+    /// @Metadata {
+    ///   @Documentation(filename: "validate")
+    /// }
     private func validate(_ newValue: Input) throws {
         for validator in validators {
             try validator.validate(newValue)
@@ -134,6 +138,10 @@ public struct Validate<Input: Sendable> {
     ///
     /// - Parameter input: The value to validate.
     /// - Returns: `.success(input)` if validation passes, `.failure(error)` if it fails.
+    ///
+    /// @Metadata {
+    ///   @Documentation(filename: "validateWithResult")
+    /// }
     private func validateWithResult(_ input: Input) -> Result<Input, Error> {
         for validator in validators {
             let result: Result<Input, Error> = validator.validateWithResult(input)

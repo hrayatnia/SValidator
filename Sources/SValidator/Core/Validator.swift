@@ -35,6 +35,9 @@ public protocol Validator<Input>: Sendable {
     /// - Parameter value: The value to validate.
     /// - Throws: An error if validation fails.
     /// - Returns: Void.
+    /// @Metadata {
+    ///   @Documentation(filename: "validate")
+    /// }
     func validate(_ value: Input) throws
     
     /// A default initializer for the `Validator` type.
@@ -59,6 +62,10 @@ public extension Validator {
     /// let emailValidator = EmailValidator()
     /// let isValid = emailValidator.isValid("test@example.com")
     /// ```
+    ///
+    /// @Metadata {
+    ///   @Documentation(filename: "isValid")
+    /// }
     func isValid(_ value: Input) -> Bool {
         (try? validate(value)) != nil
     }
@@ -75,6 +82,9 @@ public extension Validator {
     /// let emailValidator = EmailValidator()
     /// let result = emailValidator.validateWithResult("test@example.com")
     /// ```
+    /// @Metadata {
+    ///   @Documentation(filename: "validateWithResult")
+    /// }
     func validateWithResult(_ value: Input) -> Result<Input, Error> {
         Result { try validate(value); return value }
     }

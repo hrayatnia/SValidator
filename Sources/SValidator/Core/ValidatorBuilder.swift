@@ -41,6 +41,9 @@ public struct ValidatorBuilder<Input> {
     /// ```swift
     /// let emailValidator = ValidatorBuilder<String>.build(EmailValidator())
     /// ```
+    /// @Metadata {
+    ///   @Documentation(filename: "build")
+    /// }
     static func build<V: Validator>(_ element: V) -> V {
         element
     }
@@ -59,6 +62,9 @@ public struct ValidatorBuilder<Input> {
     ///     LengthValidator(min: 5, max: 10)
     /// )
     /// ```
+    /// @Metadata {
+    ///   @Documentation(filename: "buildBlock")
+    /// }
     public static func buildBlock(_ components: (any Validator<Input>)...) -> [any Validator<Input>] {
         var results: [any Validator<Input>] = []
         for validator in components {
