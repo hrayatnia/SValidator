@@ -48,6 +48,9 @@ public struct Validate<Input: Sendable> {
     /// })
     /// var name: String
     /// ```
+    /// @Metadata {
+    ///   @Documentation(filename: "init")
+    /// }
     public init(wrappedValue: Input, @ValidatorBuilder<Input> _ builder: @escaping (() -> [any Validator<Input>])) {
         self.storedValue = wrappedValue
         self.validators = builder()
