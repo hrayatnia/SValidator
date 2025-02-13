@@ -32,15 +32,17 @@
 public struct Validate<Input: Sendable> {
     private var storedValue: Input
     private let validators: [any Validator<Input>]
+    private let option: ValidationOption
 
     /// Initializes a new `@Validate` property wrapper with a default value and a set of validators.
     ///
-    /// The provided validators are collected using the `ValidatorBuilder` and applied when the value changes.
+    /// The provided validators are collected using the `ValidatorBuilder` and applied based on selected option, the options is ``ValidationOption/onGet`` by default.
     /// If the initial value does not pass validation, an error message is printed.
     ///
     /// - Parameters:
     ///   - wrappedValue: The initial value to validate.
     ///   - builder: A ``ValidatorBuilder`` closure that defines the set of validators.
+    ///   - option: an optional value to pick the validation strategy on data state ``ValidationOption``
     ///
     /// ### Example:
     /// ```swift
@@ -54,35 +56,29 @@ public struct Validate<Input: Sendable> {
     /// }
     ///
     // TODO: - add following params
-    // - on State: get, set, get/set
     // - all, any, linking validators
     // - logger
-    public init(wrappedValue: Input, @ValidatorBuilder<Input> _ builder: @escaping (() -> [any Validator<Input>])) {
+    public init(wrappedValue: Input, @ValidatorBuilder<Input> _ builder: @escaping (() -> [any Validator<Input>]), option: ValidationOption = .onSet) {
         self.storedValue = wrappedValue
+        self.option = option
         self.validators = builder()
-
-        // Validate the initial value
-        do {
-            try validate(storedValue)
-        } catch {
-            print("Initial validation failed: \(error) storedValue: \(storedValue)")
-        }
+        applyValidation(for: .onSet, value: &storedValue)
     }
 
     /// The wrapped property value.
     ///
     /// Each time a new value is assigned, it undergoes validation. If validation fails, the assignment is ignored.
     public var wrappedValue: Input {
-        get { storedValue }
-        set {
-            do {
-                try validate(newValue)
+        mutating get {
+                applyValidation(for: .onGet, value: &storedValue)
+                return storedValue
+            }
+            set {
+                var val = newValue
+                applyValidation(for: .onSet, value: &val)
                 storedValue = newValue
-            } catch {
-                print("Validation failed: \(error)")
             }
         }
-    }
 
     /// Provides access to the `Validate` instance itself.
     ///
@@ -160,4 +156,14 @@ public struct Validate<Input: Sendable> {
         }
         return .success(input)
     }
+    
+    private func applyValidation(for event: ValidationOption, value: inout Input) {
+           guard option == .always || option == event else { return }
+           do {
+               try validate(value)
+           } catch {
+               print("Validation failed: \(error)")
+           }
+       }
 }
+
