@@ -21,6 +21,7 @@
 ///  @Validate({...}, option: .onGet) var username: String = ""
 /// ```
 @frozen
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
 public enum ValidationOption {
     /// Applies validation when the value is retrieved.
     case onGet
