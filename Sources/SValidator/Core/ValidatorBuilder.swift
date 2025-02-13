@@ -27,7 +27,7 @@
 /// ```
 @frozen
 @resultBuilder
-@available(iOS 12.0, macOS 13.0, tvOS 12.0, watchOS 5.0, *)
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
 public struct ValidatorBuilder<Input> {
     
     /// Builds and returns a single validator element.

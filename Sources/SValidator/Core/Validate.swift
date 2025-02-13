@@ -28,7 +28,7 @@
 /// ```
 @frozen
 @propertyWrapper
-@available(iOS 12.0, macOS 13.0, tvOS 12.0, watchOS 5.0, *)
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
 public struct Validate<Input: Sendable> {
     private var storedValue: Input
     private let validators: [any Validator<Input>]
