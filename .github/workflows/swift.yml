@@ -14,7 +14,6 @@ env:
   LCOV_OUTPUT: "cov/info.lcov"
   CODECOV_TOKEN: ${{ secrets.CODE_COV_TOKEN }}
 
-
 jobs:
   check-tools:
     name: Check Tools
@@ -94,17 +93,6 @@ jobs:
 
       - name: Generate documentation
         run: ./scripts/doc.sh
-      - name: Upload Documentation Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: documentation
-          path: ./docs
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
-          branch: gh-pages
 
       - name: Archive Documentation
         run: tar -czf docs.tar.gz -C docs .
