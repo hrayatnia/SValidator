@@ -75,6 +75,8 @@ jobs:
 
   documentation:
     name: Documentation
+    permissions:
+      contents: write
     runs-on: macos-15
     needs: test
     steps:
