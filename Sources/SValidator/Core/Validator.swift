@@ -90,5 +90,8 @@ public extension Validator {
     }
 }
 
+// WIP
+internal protocol MandatoryValidator: Validator {}
 
-
+// WIP
+internal protocol OptionalValidator: Validator {}
