@@ -5,15 +5,16 @@
 //  Created by Sam Rayatnia on 13.02.25.
 //
 
+
 /// A property wrapper that applies validation logic to a property using a set of `Validator` objects.
 ///
-/// The `@Validate` property wrapper ensures that any assigned value passes a series of validation rules.
+/// The ``Validate`` property wrapper ensures that any assigned value passes a series of validation rules.
 /// If validation fails, the value does not update, and an error is logged.
 ///
-/// This property wrapper leverages the `ValidatorBuilder` result builder to collect multiple validators
+/// This property wrapper leverages the ``ValidatorBuilder`` result builder to collect multiple validators
 /// and apply them consistently.
 ///
-/// - Parameter Input: The type of input being validated, which must conform to `Sendable`.
+/// - Parameters Input: The type of input being validated, which must conform to ``Sendable``.
 ///
 /// ### Example Usage:
 /// ```swift
@@ -39,7 +40,7 @@ public struct Validate<Input: Sendable> {
     ///
     /// - Parameters:
     ///   - wrappedValue: The initial value to validate.
-    ///   - builder: A `ValidatorBuilder` closure that defines the set of validators.
+    ///   - builder: A ``ValidatorBuilder`` closure that defines the set of validators.
     ///
     /// ### Example:
     /// ```swift
@@ -51,6 +52,11 @@ public struct Validate<Input: Sendable> {
     /// @Metadata {
     ///   @Documentation(filename: "init")
     /// }
+    ///
+    // TODO: - add following params
+    // - on State: get, set, get/set
+    // - all, any, linking validators
+    // - logger
     public init(wrappedValue: Input, @ValidatorBuilder<Input> _ builder: @escaping (() -> [any Validator<Input>])) {
         self.storedValue = wrappedValue
         self.validators = builder()

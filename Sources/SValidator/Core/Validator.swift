@@ -34,7 +34,7 @@ public protocol Validator<Input>: Sendable {
     ///
     /// - Parameter value: The value to validate.
     /// - Throws: An error if validation fails.
-    /// - Returns: Void.
+    /// 
     /// @Metadata {
     ///   @Documentation(filename: "validate")
     /// }
