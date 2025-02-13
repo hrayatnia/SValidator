@@ -3,4 +3,4 @@
 set -e
 
 echo "📖 Start documentation preview..."
-swift package --disable-sandbox preview-documentation --target SNetwork
+swift package --disable-sandbox preview-documentation --target SValidator
