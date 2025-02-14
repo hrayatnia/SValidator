@@ -62,20 +62,19 @@ public struct Validate<Input: Sendable> {
         self.storedValue = wrappedValue
         self.option = option
         self.validators = builder()
-        applyValidation(for: .onSet, value: &storedValue)
+        applyValidation(for: .onSet, value: storedValue)
     }
 
     /// The wrapped property value.
     ///
     /// Each time a new value is assigned, it undergoes validation. If validation fails, the assignment is ignored.
     public var wrappedValue: Input {
-        mutating get {
-                applyValidation(for: .onGet, value: &storedValue)
+            get {
+                applyValidation(for: .onGet, value: storedValue)
                 return storedValue
             }
             set {
-                var val = newValue
-                applyValidation(for: .onSet, value: &val)
+                applyValidation(for: .onSet, value: newValue)
                 storedValue = newValue
             }
         }
@@ -157,7 +156,7 @@ public struct Validate<Input: Sendable> {
         return .success(input)
     }
     
-    private func applyValidation(for event: ValidationOption, value: inout Input) {
+    private func applyValidation(for event: ValidationOption, value: Input) {
            guard option == .always || option == event else { return }
            do {
                try validate(value)
