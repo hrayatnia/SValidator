@@ -36,7 +36,7 @@ struct MockOddPositiveIntegerValidator: Validator {
         }
     }
     
-    private enum ValidationError: Error {
+    internal enum ValidationError: Error {
         case valueMustBeAOddNumber
     }
 }
