@@ -23,7 +23,7 @@ public struct LengthValidator: Validator {
 
     public func validate(_ value: String) throws {
         if value.count < min || value.count > max {
-            throw ValidationError.invalidLength
+            throw MockValidationError.invalidLength
         }
     }
 }

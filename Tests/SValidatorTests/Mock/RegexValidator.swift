@@ -9,7 +9,7 @@
 import Foundation
 @testable import SValidator
 
-public enum ValidationError: Error {
+public enum MockValidationError: Error {
     case invalidLength
     case invalidPattern
 }
@@ -29,7 +29,7 @@ public struct RegexValidator: Validator {
         let regex = try NSRegularExpression(pattern: pattern)
         let range = NSRange(location: 0, length: value.count)
         if regex.firstMatch(in: value, options: [], range: range) == nil {
-            throw ValidationError.invalidPattern
+            throw MockValidationError.invalidPattern
         }
     }
 }

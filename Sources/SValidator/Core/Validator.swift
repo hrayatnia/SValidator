@@ -24,7 +24,7 @@
 /// ```
 ///
 /// - Parameter Input: The type of input to be validated.
-public protocol Validator<Input>: Sendable {
+public protocol Validator<Input>: Sendable, Equatable {
     associatedtype Input
     
     /// Validates a given value.
@@ -42,6 +42,7 @@ public protocol Validator<Input>: Sendable {
     
     /// A default initializer for the `Validator` type.
     init()
+    
 }
 
 /// Extension providing helper methods for `Validator` types.
@@ -88,10 +89,5 @@ public extension Validator {
     func validateWithResult(_ value: Input) -> Result<Input, Error> {
         Result { try validate(value); return value }
     }
+    
 }
-
-// WIP
-internal protocol MandatoryValidator: Validator {}
-
-// WIP
-internal protocol OptionalValidator: Validator {}

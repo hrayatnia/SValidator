@@ -36,7 +36,7 @@ struct ValidateTests {
     mutating func testValidationError() throws {
         integer = 2  // Even number, fails OddPositiveIntegerValidator
         if let error = $integer.validationError {
-            #expect(error != nil)  // Should throw an error due to the validation failure
+            #expect(error is MockOddPositiveIntegerValidator.ValidationError)  // Check for custom validation error
         }
     }
 
@@ -45,6 +45,9 @@ struct ValidateTests {
     mutating func testValidationOnSet() throws {
         integer = 2  // This should fail validation on set because of the odd number check
         #expect(!$integer.isValid)  // Expect validation to fail on set
+        
+        integer = 15  // Valid odd integer
+        #expect($integer.isValid)  // Expect validation to pass on set
     }
 
     // Test case to verify validation works on get (validation logic should trigger when accessed)
@@ -54,33 +57,31 @@ struct ValidateTests {
         integer = 2
         // Accessing it should trigger the validation on get
         _ = integer
-        #expect(!$integer.isValid)
+        #expect(!$integer.isValid)  // Should still fail validation after retrieval
     }
 
     // Test case to verify validation always happens (on both get and set)
     @Test
     mutating func testValidationAlways() throws {
-        @Validate(wrappedValue: 2, {
+        @Validate({
             MockPositiveIntegerValidator()
             MockOddPositiveIntegerValidator()
-        }, option: .always) var alwaysValidatedInteger: Int
-
-        // Set an invalid value (even number)
-        alwaysValidatedInteger = 2
-        #expect(!$alwaysValidatedInteger.isValid)  // Validation should fail immediately
+        }, options: [.retrieval(.always)]) var alwaysValidatedInteger: Int = 2
         
-        // Get the value, should still fail validation
-        _ = alwaysValidatedInteger
-        #expect(!$alwaysValidatedInteger.isValid)  // Validation should still fail on get
+        alwaysValidatedInteger = 2  // Invalid value
+        #expect(!$alwaysValidatedInteger.isValid)  // Should fail immediately
+        
+        _ = alwaysValidatedInteger  // Should also fail on get
+        #expect(!$alwaysValidatedInteger.isValid)  // Should still fail validation on get
     }
 
     // Test case for valid value on get and set
     @Test
     mutating func testValidValueOnGetSet() throws {
-        @Validate(wrappedValue: 15, {
+        @Validate({
             MockPositiveIntegerValidator()
             MockOddPositiveIntegerValidator()
-        }, option: .always) var alwaysValidatedInteger: Int
+        }, options: [.retrieval(.always)]) var alwaysValidatedInteger: Int = 15
 
         // Set a valid value (odd positive integer)
         alwaysValidatedInteger = 15
@@ -95,10 +96,10 @@ struct ValidateTests {
     @Test
     mutating func testInitialValueValidation() throws {
         // Initialize with an invalid value (even number)
-        @Validate(wrappedValue: 2, {
+        @Validate({
             MockPositiveIntegerValidator()
             MockOddPositiveIntegerValidator()
-        }) var validatedInteger: Int
+        }) var validatedInteger: Int = 2
         
         // Check that validation failed upon initialization
         #expect(!$validatedInteger.isValid) // Expect validation to fail
@@ -137,5 +138,40 @@ struct ValidateTests {
             #expect(error != nil)
         }
     }
-}
 
+    // Missing Test for Strategy `.all`
+    @Test
+    mutating func testValidationStrategyAll() throws {
+        @Validate({
+            MockPositiveIntegerValidator()
+            MockOddPositiveIntegerValidator()
+        }, options: [.retrieval(.onSet)]) var validatedInteger: Int = 3
+
+        validatedInteger = 2  // Invalid, should fail both validators
+        #expect(!$validatedInteger.isValid)  // Validation should fail
+    }
+
+    // Missing Test for Strategy `.some`
+    @Test
+    mutating func testValidationStrategySome() throws {
+        @Validate({
+            MockPositiveIntegerValidator()
+            MockOddPositiveIntegerValidator()
+        }, options: [.retrieval(.onSet)]) var validatedInteger: Int = 3
+
+        validatedInteger = 5  // Should pass some validators (odd positive integer)
+        #expect($validatedInteger.isValid)  // Validation should pass
+    }
+
+    // Missing Test for Strategy `.any`
+    @Test
+    mutating func testValidationStrategyAny() throws {
+        @Validate({
+            MockPositiveIntegerValidator()
+            MockOddPositiveIntegerValidator()
+        }, options: [.retrieval(.onSet),.strategy(.any)]) var validatedInteger: Int = 3
+
+        validatedInteger = 10  // Should pass one validator (positive integer)
+        #expect($validatedInteger.isValid)  // Validation should pass (any validator should succeed)
+    }
+}
